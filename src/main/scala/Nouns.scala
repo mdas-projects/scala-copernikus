@@ -1,5 +1,7 @@
 package copernikus
 
+val totalHexagonalSegment = 18
+
 case class Telescope(
     id: Int,
     name: String,
@@ -8,8 +10,7 @@ case class Telescope(
     positionY: Double,
     positionZ: Double,
     activeSunshade: Boolean,
-
-    
+    primaryMirror: Option[PrimaryMirror]
 ) {}
 
 case class PrimaryMirror(
@@ -19,7 +20,7 @@ case class PrimaryMirror(
 
 case class HexagonalSegment(
     id: Int,
-    flexDegrees: Int = 0
+    degrees: Int = 0
 ) {}
 
 case class InfraredImage(
@@ -29,4 +30,4 @@ case class InfraredImage(
 ) {}
 
 enum Module:
-    case Computer, Comunicater, Memory, Propulser, IA
+  case Computer, Comunicater, Memory, Propulser, IA
