@@ -9,3 +9,7 @@ def randomInt(limit: Int): Int = {
   val r = scala.util.Random
   r.nextInt(limit)
 }
+
+def cleanElectromagneticNoise(element: Int): Int = {
+  element.abs
+}

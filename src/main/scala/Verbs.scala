@@ -1,4 +1,5 @@
 package copernikus
+import play.api.libs.json._
 
 trait TelescopeServiceTrait:
   def deploySunshade(t: Telescope): Telescope
@@ -96,6 +97,11 @@ class ComputerModule extends ModuleTrait {
 class ComunicaterModule extends ModuleTrait {
   override def initialize(): Unit = println("Comunicater Module inicializado")
 
+  def sendInfraredImage(image: InfraredImage): Unit = {
+    // Convertimos a JSON y enviamos
+    val jsonImage = Json.toJs
+  }
+
 }
 
 class MemoryModule extends ModuleTrait {
@@ -116,4 +122,12 @@ class PropulserModule extends ModuleTrait {
 
 class IAModule extends ModuleTrait {
   override def initialize(): Unit = println("IA Module inicializado")
+
+  def clean(image: InfraredImage): InfraredImage = {
+    val fakeImage = image.copy().matrix
+    val matrix = fakeImage.map(list =>
+      list.map(element => cleanElectromagneticNoise(element))
+    )
+    image.copy(matrix = matrix)
+  }
 }

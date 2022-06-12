@@ -5,8 +5,9 @@ lazy val root = project
   .settings(
     name := "scala-copernikus",
     version := "0.1.0-SNAPSHOT",
-
     scalaVersion := scala3Version,
-
-    libraryDependencies += "org.scalameta" %% "munit" % "0.7.29" % Test
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit" % "0.7.29" % Test,
+      "com.typesafe.play" %% "play-json" % "2.4.8"
+    )
   )

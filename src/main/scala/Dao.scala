@@ -10,21 +10,6 @@ trait PrimaryMirrorDaoInterface {
   def save(id: PrimaryMirror): Unit
 }
 
-object PrimaryMirrorDao extends PrimaryMirrorDaoInterface {
-  var map: Map[Int, PrimaryMirror] = Map()
-
-  def get(id: Int): PrimaryMirror = {
-    map.get(id) match {
-      case Some(mirror) => mirror
-      case None         => throw new Exception("No PrimaryMirror with id " + id)
-    }
-  }
-
-  def save(p: PrimaryMirror): Unit = {
-    map += (p.id -> p)
-  }
-}
-
 object TelescopeDao extends TelescopeDaoInterface {
   var map: Map[Int, Telescope] = Map()
 

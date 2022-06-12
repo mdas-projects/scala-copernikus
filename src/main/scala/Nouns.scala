@@ -10,7 +10,8 @@ case class Telescope(
     positionY: Double,
     positionZ: Double,
     activeSunshade: Boolean,
-    primaryMirror: Option[PrimaryMirror]
+    primaryMirror: Option[PrimaryMirror],
+    images: Option[List[InfraredImage]]
 ) {}
 
 case class PrimaryMirror(
@@ -24,9 +25,10 @@ case class HexagonalSegment(
 ) {}
 
 case class InfraredImage(
-    id: Int,
+    groupImageId: Int,
+    order: Int,
     date: String,
-    matrix: List[List[String]]
+    matrix: List[List[Int]]
 ) {}
 
 enum Module:
