@@ -3,11 +3,13 @@ package copernikus
 case class Telescope(
     id: Int,
     name: String,
-    powerPercent: Double,
+    sunshadePowerPercent: Double,
     positionX: Double,
     positionY: Double,
     positionZ: Double,
-    active: Boolean,
+    activeSunshade: Boolean,
+
+    
 ) {}
 
 case class PrimaryMirror(
@@ -26,3 +28,5 @@ case class InfraredImage(
     matrix: List[List[String]]
 ) {}
 
+enum Module:
+    case Computer, Comunicater, Memory, Propulser, IA
