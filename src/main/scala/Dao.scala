@@ -2,7 +2,7 @@ package copernikus
 
 trait TelescopeDaoInterface {
   def get(id: Int): Telescope
-  def save(id: Telescope): Unit
+  def save(id: Telescope): Telescope
 }
 
 trait PrimaryMirrorDaoInterface {
@@ -19,7 +19,8 @@ object TelescopeDao extends TelescopeDaoInterface {
       case None            => throw new Exception("No telescope with id " + id)
     }
   }
-  def save(t: Telescope): Unit = {
+  def save(t: Telescope): Telescope = {
     map += (t.id -> t)
+    t
   }
 }

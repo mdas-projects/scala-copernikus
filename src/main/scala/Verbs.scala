@@ -98,7 +98,7 @@ class ComunicaterModule extends ModuleTrait {
 
   def sendInfraredImage(image: InfraredImage): Unit = {
     print(
-      s"Enviando imagen a tierra... ${image.groupImageId} con orden ${image.order}"
+      s"Enviando imagen a tierra... ${image.matrix} con orden ${image.order}"
     )
   }
 
@@ -107,7 +107,7 @@ class ComunicaterModule extends ModuleTrait {
 class MemoryModule extends ModuleTrait {
   override def initialize(): Unit = println("Memory Module inicializado")
 
-  def saveTelescope(t: Telescope): Unit = {
+  def saveTelescope(t: Telescope): Telescope = {
     TelescopeDao.save(t)
   }
 

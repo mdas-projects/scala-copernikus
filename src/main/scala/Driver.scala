@@ -5,16 +5,16 @@ val telescopeInitial = Telescope(
   telescopeId,
   "Copernicus",
   100,
-  randomDouble(),
-  randomDouble(),
-  randomDouble(),
+  randomHOF(RandomType.Double)(),
+  randomHOF(RandomType.Double)(),
+  randomHOF(RandomType.Double)(),
   false,
   None,
   None
 )
 
 val createFakeAlignments = (total: Int) =>
-  (0 until total).toList.map(i => (i, randomInt(90)))
+  (0 until total).toList.map(i => (i, randomHOF(RandomType.Int)(90)))
 
 val createFakeImage = (rows: Int, columns: Int) => {
   (0 until rows).toList.map(_ =>
@@ -24,33 +24,35 @@ val createFakeImage = (rows: Int, columns: Int) => {
 
 package tripTelescope {
   @main def deploy: Unit = {
-    // Use Case 1: Deploy Sunshade
-    // Desplegamos el telescopio y inicializamos los modulos
-    val telescope = TelescopeService.deploySunshade(telescopeInitial)
-
-    // Guardamos telescopio en memoria
+    // Inicialización de memoryModule
     val memoryModule: MemoryModule =
       Bus.getModule(Module.Memory).asInstanceOf[MemoryModule]
-    memoryModule.saveTelescope(telescope)
+
+    // Use Case 1: Deploy Sunshade
+    // Desplegamos el telescopio y inicializamos los modulos
+    // Guardamos telescopio en memoria
+    val telescope1 = memoryModule.saveTelescope(
+      TelescopeService.deploySunshade(telescopeInitial)
+    )
 
     // Use Case 2: Deploy Primary Mirror
-    val telescope2 = memoryModule.getTelescope(telescopeId)
-    memoryModule.saveTelescope(TelescopeService.deployPrimaryMirror(telescope2))
+    val telescope2 = memoryModule.saveTelescope(
+      TelescopeService.deployPrimaryMirror(telescope1)
+    )
 
     // Use Case 3: Align Telescope
-    val telescope3 = memoryModule.getTelescope(telescopeId)
-    val primaryMirror =
-      AlignmentOpticalSystems.align(
-        telescope3.primaryMirror,
-        createFakeAlignments(totalHexagonalSegment)
+    val telescope3 = memoryModule.saveTelescope(
+      telescope2.copy(primaryMirror =
+        Some(
+          AlignmentOpticalSystems.align(
+            telescope2.primaryMirror,
+            createFakeAlignments(totalHexagonalSegment)
+          )
+        )
       )
-    memoryModule.saveTelescope(
-      telescope3.copy(primaryMirror = Some(primaryMirror))
     )
 
     // Use Case 4: Capture Infrared Image
-    val telescope4 = memoryModule.getTelescope(telescopeId)
-
     val list = createFakeImage(20, 20)
     println(s"List: $list")
 
@@ -58,29 +60,23 @@ package tripTelescope {
     val fakeNoisyInfraredImage =
       InfraredImage(1, 1, "2022-06-12T20:53:34.743Z", list)
 
-    memoryModule.saveTelescope(
-      telescope4.copy(images = Some(List(fakeNoisyInfraredImage)))
+    val telescope4 = memoryModule.saveTelescope(
+      telescope3.copy(images = Some(List(fakeNoisyInfraredImage)))
     )
 
-    // Electromagnetic Noise cleaning
-    val telescope5 = memoryModule.getTelescope(telescopeId)
+    // Use case 4.1: Electromagnetic Noise cleaning
     val iaModule: IAModule =
       Bus.getModule(Module.IA).asInstanceOf[IAModule]
 
-    val cleanedInfraredImage = iaModule.clean(fakeNoisyInfraredImage)
-
-    val newImageList: List[InfraredImage] =
-      telescope5.images.dropRight(1).toList.flatten ++ List(
-        cleanedInfraredImage
-      )
-
-    memoryModule.saveTelescope(
-      telescope5.copy(images = Some(newImageList))
+    val telescope5 = memoryModule.saveTelescope(
+      telescope4.copy(images = Some(telescope4.images.dropRight(1).toList.flatten ++ List(
+        iaModule.clean(fakeNoisyInfraredImage)
+      )))
     )
 
-    // Send image to Earth, publish discovers
+    // Use case 4.2: Send image to Earth, publish discovers
     val comunicaterModule: ComunicaterModule =
       Bus.getModule(Module.Comunicater).asInstanceOf[ComunicaterModule]
-    comunicaterModule.sendInfraredImage(cleanedInfraredImage)
+    comunicaterModule.sendInfraredImage(telescope5.images.toList.flatten.last)
   }
 }
