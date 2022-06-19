@@ -2,6 +2,7 @@ package copernikus
 
 val totalHexagonalSegment = 18
 
+// Case class en nuestras entidades ya que nos permite tener parametros inmutables y sintaxis de inicialización compacta (Minimal class).
 case class Telescope(
     id: Int,
     name: String,

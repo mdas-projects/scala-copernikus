@@ -1,5 +1,10 @@
 package copernikus
 
+// Definimos las interfaces de los services
+trait FakeImage {
+  def create(): InfraredImage
+}
+
 trait TelescopeServiceTrait:
   def deploySunshade(t: Telescope): Telescope
   def deployPrimaryMirror(t: Telescope): Telescope
@@ -12,11 +17,17 @@ trait AlignmentOpticalSystemsTrait:
   ): PrimaryMirror
 end AlignmentOpticalSystemsTrait
 
-trait ModuleTrait:
-  def initialize(): Unit
-end ModuleTrait
+trait ComunicaterInfraredImageTrait:
+  def sendInfraredImage(image: InfraredImage): Unit
+end ComunicaterInfraredImageTrait
 
-object AlignmentOpticalSystems extends AlignmentOpticalSystemsTrait {
+// Abstract class para que pueda albergar logica futura para las modulos que lo implemetan
+abstract class ModuleTrait {
+  def initialize(): Unit
+}
+
+// Class ya que sera inicializado en el driver antes de ejecutar el caso de uso requerido
+class AlignmentOpticalSystems extends AlignmentOpticalSystemsTrait {
   def align(
       t: Option[PrimaryMirror],
       alignments: List[(Int, Int)]
@@ -32,11 +43,11 @@ object AlignmentOpticalSystems extends AlignmentOpticalSystemsTrait {
       case None =>
         throw new Exception("No Primary Mirror initilized")
     }
-
   }
 }
 
-object TelescopeService extends TelescopeServiceTrait {
+// Class ya que sera inicializado en el driver antes de ejecutar el caso de uso requerido
+class TelescopeService extends TelescopeServiceTrait {
   def deploySunshade(t: Telescope): Telescope = {
     println("Desplegando Parasol...")
     println("Parasol desplegado: Proteccion contra la luz y el calor del Sol")
@@ -60,10 +71,11 @@ object TelescopeService extends TelescopeServiceTrait {
   }
 }
 
+// Creamos singleton para el Bus ya que necesitamos que siempre este disponible desde antes de todos los casos de uso requeridos
 object Bus {
   val computerModule = new ComputerModule
   val comunicaterModule = new ComunicaterModule
-  val memoryModule = new MemoryModule
+  val memoryModule = new MemoryModule(new TelescopeDao)
   val propulserModule = new PropulserModule
   val iaModule = new IAModule
 
@@ -85,11 +97,13 @@ object Bus {
   }
 }
 
+// Class ya que sera inicializado por el bus
 class ComputerModule extends ModuleTrait {
   override def initialize(): Unit = println("Computer Module inicializado")
 }
 
-class ComunicaterModule extends ModuleTrait {
+// Class ya que sera inicializado por el bus
+class ComunicaterModule extends ModuleTrait with ComunicaterInfraredImageTrait {
   override def initialize(): Unit = println("Comunicater Module inicializado")
 
   def sendInfraredImage(image: InfraredImage): Unit = {
@@ -97,25 +111,27 @@ class ComunicaterModule extends ModuleTrait {
       s"Enviando imagen a tierra... ${image.matrix} con orden ${image.order}"
     )
   }
-
 }
 
-class MemoryModule extends ModuleTrait {
+// Class ya que sera inicializado por el bus
+class MemoryModule(telescopeDao: TelescopeDao) extends ModuleTrait {
   override def initialize(): Unit = println("Memory Module inicializado")
 
   def saveTelescope(t: Telescope): Telescope = {
-    TelescopeDao.save(t)
+    this.telescopeDao.save(t)
   }
 
   def getTelescope(id: Int): Telescope = {
-    TelescopeDao.get(id)
+    this.telescopeDao.get(id)
   }
 }
 
+// Class ya que sera inicializado por el bus
 class PropulserModule extends ModuleTrait {
   override def initialize(): Unit = println("Propulser Module inicializado")
 }
 
+// Class ya que sera inicializado por el bus
 class IAModule extends ModuleTrait {
   override def initialize(): Unit = println("IA Module inicializado")
 

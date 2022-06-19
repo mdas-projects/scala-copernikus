@@ -1,11 +1,13 @@
 package copernikus
 
+// Definimos la interfaz para nuestro DAO
 trait TelescopeDaoInterface {
   def get(id: Int): Telescope
   def save(id: Telescope): Telescope
 }
 
-object TelescopeDao extends TelescopeDaoInterface {
+// Class para el Dao ya que lo usamos en el memory module solamente
+class TelescopeDao extends TelescopeDaoInterface {
   var map: Map[Int, Telescope] = Map()
 
   def get(id: Int): Telescope = {

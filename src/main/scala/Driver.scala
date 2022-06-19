@@ -13,38 +13,31 @@ val telescopeInitial = Telescope(
   None
 )
 
-val createFakeAlignments = (total: Int) =>
-  (0 until total).toList.map(i => (i, randomInt(90)))
-
-val createFakeImage = (rows: Int, columns: Int) => {
-  (0 until rows).toList.map(_ =>
-    (0 until columns).toList.map(_ => randomInt(255))
-  )
-}
-
 package tripTelescope {
   @main def deploy: Unit = {
     // Inicialización de memoryModule
     val memoryModule: MemoryModule =
       Bus.getModule(Module.Memory).asInstanceOf[MemoryModule]
 
+    val telescopeService = new TelescopeService
+    val alignmentOpticalSystems = new AlignmentOpticalSystems
+
     // Use Case 1: Deploy Sunshade
-    // Desplegamos el telescopio y inicializamos los modulos
-    // Guardamos telescopio en memoria
+    // Desplegamos el telescopio y inicializamos los modulos y guardamos telescopio en memoria
     val telescope1 = memoryModule.saveTelescope(
-      TelescopeService.deploySunshade(telescopeInitial)
+      telescopeService.deploySunshade(telescopeInitial)
     )
 
     // Use Case 2: Deploy Primary Mirror
     val telescope2 = memoryModule.saveTelescope(
-      TelescopeService.deployPrimaryMirror(telescope1)
+      telescopeService.deployPrimaryMirror(telescope1)
     )
 
     // Use Case 3: Align Telescope
     val telescope3 = memoryModule.saveTelescope(
       telescope2.copy(primaryMirror =
         Some(
-          AlignmentOpticalSystems.align(
+          alignmentOpticalSystems.align(
             telescope2.primaryMirror,
             createFakeAlignments(totalHexagonalSegment)
           )
@@ -53,14 +46,16 @@ package tripTelescope {
     )
 
     // Use Case 4: Capture Infrared Image
-    val list = createFakeImage(20, 20)
 
-    // Capture Infrate ligth and store information
-    val fakeNoisyInfraredImage =
-      InfraredImage(1, 1, "2022-06-12T20:53:34.743Z", list)
+    // Capture Infrate ligth and store information using anonymous class
+    val fakeNoisyInfraredImage = new FakeImage {
+      override def create(): InfraredImage = {
+        InfraredImage(1, 1, "2022-06-12T20:53:34.743Z", createFakeImage(20, 20))
+      }
+    }
 
     val telescope4 = memoryModule.saveTelescope(
-      telescope3.copy(images = Some(List(fakeNoisyInfraredImage)))
+      telescope3.copy(images = Some(List(fakeNoisyInfraredImage.create())))
     )
 
     // Use case 4.1: Electromagnetic Noise cleaning
@@ -71,7 +66,10 @@ package tripTelescope {
       telescope4.copy(images =
         Some(
           telescope4.images.dropRight(1).toList.flatten ++ List(
-            iaModule.clean(fakeNoisyInfraredImage, cleanElectromagneticNoise)
+            iaModule.clean(
+              fakeNoisyInfraredImage.create(),
+              cleanElectromagneticNoise
+            )
           )
         )
       )
