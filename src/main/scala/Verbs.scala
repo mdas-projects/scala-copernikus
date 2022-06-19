@@ -12,10 +12,6 @@ trait AlignmentOpticalSystemsTrait:
   ): PrimaryMirror
 end AlignmentOpticalSystemsTrait
 
-trait InfraredImageCaptureTrait:
-  def capture(p: InfraredImage): Unit
-end InfraredImageCaptureTrait
-
 trait ModuleTrait:
   def initialize(): Unit
 end ModuleTrait
@@ -123,10 +119,13 @@ class PropulserModule extends ModuleTrait {
 class IAModule extends ModuleTrait {
   override def initialize(): Unit = println("IA Module inicializado")
 
-  def clean(image: InfraredImage): InfraredImage = {
+  def clean(
+      image: InfraredImage,
+      cleanAlgorithmFunction: (pixel: Int) => Int
+  ): InfraredImage = {
     val fakeImage = image.copy().matrix
     val matrix = fakeImage.map(list =>
-      list.map(element => cleanElectromagneticNoise(element))
+      list.map(element => cleanAlgorithmFunction(element))
     )
     image.copy(matrix = matrix)
   }

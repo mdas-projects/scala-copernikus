@@ -5,16 +5,16 @@ val telescopeInitial = Telescope(
   telescopeId,
   "Copernicus",
   100,
-  randomHOF(RandomType.Double)(),
-  randomHOF(RandomType.Double)(),
-  randomHOF(RandomType.Double)(),
+  randomDouble(),
+  randomDouble(),
+  randomDouble(),
   false,
   None,
   None
 )
 
 val createFakeAlignments = (total: Int) =>
-  (0 until total).toList.map(i => (i, randomHOF(RandomType.Int)(90)))
+  (0 until total).toList.map(i => (i, randomInt(90)))
 
 val createFakeImage = (rows: Int, columns: Int) => {
   (0 until rows).toList.map(_ =>
@@ -54,7 +54,6 @@ package tripTelescope {
 
     // Use Case 4: Capture Infrared Image
     val list = createFakeImage(20, 20)
-    println(s"List: $list")
 
     // Capture Infrate ligth and store information
     val fakeNoisyInfraredImage =
@@ -69,9 +68,13 @@ package tripTelescope {
       Bus.getModule(Module.IA).asInstanceOf[IAModule]
 
     val telescope5 = memoryModule.saveTelescope(
-      telescope4.copy(images = Some(telescope4.images.dropRight(1).toList.flatten ++ List(
-        iaModule.clean(fakeNoisyInfraredImage)
-      )))
+      telescope4.copy(images =
+        Some(
+          telescope4.images.dropRight(1).toList.flatten ++ List(
+            iaModule.clean(fakeNoisyInfraredImage, cleanElectromagneticNoise)
+          )
+        )
+      )
     )
 
     // Use case 4.2: Send image to Earth, publish discovers

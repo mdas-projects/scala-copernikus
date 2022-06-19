@@ -5,11 +5,6 @@ trait TelescopeDaoInterface {
   def save(id: Telescope): Telescope
 }
 
-trait PrimaryMirrorDaoInterface {
-  def get(id: Int): PrimaryMirror
-  def save(id: PrimaryMirror): Unit
-}
-
 object TelescopeDao extends TelescopeDaoInterface {
   var map: Map[Int, Telescope] = Map()
 
