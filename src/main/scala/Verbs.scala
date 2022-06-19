@@ -97,8 +97,9 @@ class ComunicaterModule extends ModuleTrait {
   override def initialize(): Unit = println("Comunicater Module inicializado")
 
   def sendInfraredImage(image: InfraredImage): Unit = {
-    // Convertimos a JSON y enviamos
-    "JSON"
+    print(
+      s"Enviando imagen a tierra... ${image.groupImageId} con orden ${image.order}"
+    )
   }
 
 }

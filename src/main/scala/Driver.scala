@@ -79,6 +79,8 @@ package tripTelescope {
     )
 
     // Send image to Earth, publish discovers
-
+    val comunicaterModule: ComunicaterModule =
+      Bus.getModule(Module.Comunicater).asInstanceOf[ComunicaterModule]
+    comunicaterModule.sendInfraredImage(cleanedInfraredImage)
   }
 }
