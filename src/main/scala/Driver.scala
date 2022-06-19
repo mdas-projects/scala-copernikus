@@ -55,11 +55,11 @@ package tripTelescope {
     println(s"List: $list")
 
     // Capture Infrate ligth and store information
-    val fakeInfraredImage =
+    val fakeNoisyInfraredImage =
       InfraredImage(1, 1, "2022-06-12T20:53:34.743Z", list)
 
     memoryModule.saveTelescope(
-      telescope4.copy(images = Some(ListB(fakeInfraredImage)))
+      telescope4.copy(images = Some(List(fakeNoisyInfraredImage)))
     )
 
     // Electromagnetic Noise cleaning
@@ -67,11 +67,12 @@ package tripTelescope {
     val iaModule: IAModule =
       Bus.getModule(Module.IA).asInstanceOf[IAModule]
 
-    val cleanedInfraredImage = iaModule.clean(telescope5.images.last)
+    val cleanedInfraredImage = iaModule.clean(fakeNoisyInfraredImage)
 
     val newImageList: List[InfraredImage] =
-      telescope5.images.dropRight(1)
-    newImageList += cleanedInfraredImage
+      telescope5.images.dropRight(1).toList.flatten ++ List(
+        cleanedInfraredImage
+      )
 
     memoryModule.saveTelescope(
       telescope5.copy(images = Some(newImageList))

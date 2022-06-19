@@ -1,5 +1,4 @@
 package copernikus
-import play.api.libs.json._
 
 trait TelescopeServiceTrait:
   def deploySunshade(t: Telescope): Telescope
@@ -99,7 +98,7 @@ class ComunicaterModule extends ModuleTrait {
 
   def sendInfraredImage(image: InfraredImage): Unit = {
     // Convertimos a JSON y enviamos
-    val jsonImage = Json.toJs
+    "JSON"
   }
 
 }
